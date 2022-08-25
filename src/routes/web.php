@@ -1,7 +1,8 @@
 <?php
 
+use App\Http\Controllers\TicketsController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,15 @@ use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+Route::name('user.')->group(function() {
+    Route::view('/private', 'private')->middleware('auth')->name('private');
+    Route::get('/login', [UserController::class, 'loginIndex'])->name('login');
+
+    Route::post('/login', [UserController::class, 'login']);
+    Route::get('/logout', [UserController::class, 'logout'])->name('logout');
+    Route::get('/registration', [UserController::class, 'registrationIndex'])->name('registration');
+
+    Route::post('/registration', [UserController::class, 'save']);
 });
