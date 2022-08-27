@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTicketsRequest;
 use App\Http\Requests\UpdateTicketsRequest;
 use App\Models\Tickets;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class TicketsController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $tickets = Tickets::all();
 
@@ -23,7 +25,7 @@ class TicketsController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -33,10 +35,10 @@ class TicketsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreTicketsRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param StoreTicketsRequest $request
+     * @return JsonResponse
      */
-    public function store(StoreTicketsRequest $request)
+    public function store(StoreTicketsRequest $request): JsonResponse
     {
         $ticket = Tickets::create($request->all());
 
@@ -46,10 +48,10 @@ class TicketsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Tickets  $ticket
-     * @return \Illuminate\Http\Response
+     * @param Tickets $ticket
+     * @return Tickets
      */
-    public function show(Tickets $ticket)
+    public function show(Tickets $ticket): Tickets
     {
         return $ticket;
     }
@@ -57,10 +59,10 @@ class TicketsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Tickets  $tickets
-     * @return \Illuminate\Http\Response
+     * @param Tickets $tickets
+     * @return Response
      */
-    public function edit(Tickets $tickets)
+    public function edit(Tickets $tickets): Response
     {
         //
     }
@@ -68,11 +70,11 @@ class TicketsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateTicketsRequest  $request
-     * @param  \App\Models\Tickets  $tickets
-     * @return \Illuminate\Http\Response
+     * @param UpdateTicketsRequest $request
+     * @param Tickets $ticket
+     * @return JsonResponse
      */
-    public function update(UpdateTicketsRequest $request, Tickets $ticket)
+    public function update(UpdateTicketsRequest $request, Tickets $ticket): JsonResponse
     {
         $ticket->update($request->all());
 
@@ -82,10 +84,10 @@ class TicketsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Tickets  $tickets
-     * @return \Illuminate\Http\Response
+     * @param Tickets $ticket
+     * @return JsonResponse
      */
-    public function destroy(Tickets $ticket)
+    public function destroy(Tickets $ticket): JsonResponse
     {
         $ticket->delete();
 

@@ -15,13 +15,10 @@ class Tickets extends Model
         'solved' => 2,
     ];
 
-    // TODO: fix the solved_at and freezed_at necessity - make it optional.
     protected $fillable = [
         'title',
         'status',
         'user_id',
-        'solved_at',
-        'freezed_at'
     ];
 
     public function getStatusAttribute(): string

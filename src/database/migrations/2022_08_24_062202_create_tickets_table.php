@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('title');
             $table->tinyInteger('status');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->timestamp('solved_at');
-            $table->timestamp('freezed_at');
+            $table->timestamp('solved_at')->nullable()->default(null);
+            $table->timestamp('freezed_at')->nullable()->default(null);
             $table->timestamps();
         });
     }
