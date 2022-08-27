@@ -15,11 +15,9 @@ class TicketsController extends Controller
      */
     public function index()
     {
-        $data = [
-            'tickets' => Tickets::all()
-        ];
+        $tickets = Tickets::all();
 
-        return view('tickets', $data);
+        return response()->json($tickets, 200);
     }
 
     /**
@@ -40,18 +38,20 @@ class TicketsController extends Controller
      */
     public function store(StoreTicketsRequest $request)
     {
-        //
+        $ticket = Tickets::create($request->all());
+
+        return response()->json($ticket, 201);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Tickets  $tickets
+     * @param  \App\Models\Tickets  $ticket
      * @return \Illuminate\Http\Response
      */
-    public function show(Tickets $tickets)
+    public function show(Tickets $ticket)
     {
-        //
+        return $ticket;
     }
 
     /**
@@ -72,9 +72,11 @@ class TicketsController extends Controller
      * @param  \App\Models\Tickets  $tickets
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateTicketsRequest $request, Tickets $tickets)
+    public function update(UpdateTicketsRequest $request, Tickets $ticket)
     {
-        //
+        $ticket->update($request->all());
+
+        return response()->json($ticket, 200);
     }
 
     /**
@@ -83,8 +85,10 @@ class TicketsController extends Controller
      * @param  \App\Models\Tickets  $tickets
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Tickets $tickets)
+    public function destroy(Tickets $ticket)
     {
-        //
+        $ticket->delete();
+
+        return response()->json(null, 204);
     }
 }
