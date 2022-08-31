@@ -19,6 +19,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/ticket-list', [TicketsController::class, 'index']);
+
 Route::name('user.')->group(function() {
     Route::view('/private', 'private')->middleware('auth')->name('private');
     Route::get('/login', [UserController::class, 'loginIndex'])->name('login');

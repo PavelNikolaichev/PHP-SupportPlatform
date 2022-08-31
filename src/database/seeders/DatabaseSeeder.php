@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\User as User;
 use Illuminate\Database\Seeder;
 
@@ -13,13 +12,14 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
-         User::factory(10)->create();
-
-         User::factory()->create([
-             'name' => 'Test User',
-             'email' => 'test@example.com',
-         ]);
+        // setStatusAttribute() method is conflicting with seeder, bear in mind!
+//         User::factory(10)->create();
+//
+//         User::factory()->create([
+//             'name' => 'Test User',
+//             'email' => 'test@example.com',
+//         ]);
     }
 }
