@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,7 +24,7 @@ Route::get('/', function () {
 Route::get('/ticket-list', [TicketsController::class, 'index']);
 
 Route::name('user.')->group(function() {
-    Route::view('/private', 'private')->middleware('auth')->name('private');
+    Route::view('/private', 'private')->middleware('auth:sanctum')->name('private');
     Route::get('/login', [UserController::class, 'loginIndex'])->name('login');
 
     Route::post('/login', [UserController::class, 'login']);
@@ -31,3 +33,17 @@ Route::name('user.')->group(function() {
 
     Route::post('/registration', [UserController::class, 'save']);
 });
+
+Route::get('tokens/create', function(Request $request) {
+    if ($request->user() === null) {
+        return response()->json('You are not logged in', 401);
+    }
+
+    $token = $request->user()->createToken('Bearer');
+
+    return response()->json($token, 201);
+});
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

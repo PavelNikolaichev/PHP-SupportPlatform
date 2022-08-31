@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTicketsRequest;
 use App\Models\Tickets;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class TicketsController extends Controller
 {
@@ -18,6 +19,13 @@ class TicketsController extends Controller
     public function index(): JsonResponse
     {
         $tickets = Tickets::all();
+
+        return response()->json($tickets, 200);
+    }
+
+    public function related(): JsonResponse
+    {
+        $tickets = Tickets::where('user_id', Auth::user()->id)->get();
 
         return response()->json($tickets, 200);
     }

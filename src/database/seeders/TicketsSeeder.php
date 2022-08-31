@@ -14,6 +14,7 @@ class TicketsSeeder extends Seeder
      */
     public function run()
     {
-        Tickets::factory(10)->create();
+        // setStatusAttribute() method is conflicting with seeder, bear in mind!
+//        Tickets::factory(10)->create();
     }
 }
