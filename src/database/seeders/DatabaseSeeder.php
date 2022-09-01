@@ -14,12 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // setStatusAttribute() method is conflicting with seeder, bear in mind!
-//         User::factory(10)->create();
-//
-//         User::factory()->create([
-//             'name' => 'Test User',
-//             'email' => 'test@example.com',
-//         ]);
+         User::factory(10)->create();
+
+         User::factory()->create([
+             'name' => 'Test User',
+             'email' => 'test@example.com',
+         ]);
     }
 }

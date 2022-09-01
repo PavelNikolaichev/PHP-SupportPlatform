@@ -35,4 +35,9 @@ class Tickets extends Model
     {
         return $this->belongsTo(User::class, 'user_id')->get()[0]->name;
     }
+
+    public function getMessagesAttribute()
+    {
+        return $this->hasMany(Message::class, 'ticket_id');
+    }
 }
