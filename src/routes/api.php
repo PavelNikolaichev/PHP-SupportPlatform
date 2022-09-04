@@ -18,16 +18,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-// generate tokens in web, not in API, I guess.
-Route::get('tokens/create', function(Request $request) {
-    if ($request->user() === null) {
-        return response()->json('You are not logged in', 401);
-    }
-
-    $token = $request->user()->createToken($request->bearer);
-
-    return response()->json($token, 201);
-});
 
 Route::middleware('auth:sanctum')->get('tickets', [TicketsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('tickets/related', [TicketsController::class, 'related']);
