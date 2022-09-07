@@ -19,7 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->get('tickets', [TicketsController::class, 'index']);
+//Route::middleware('auth:sanctum')->get('tickets', [TicketsController::class, 'index']);
+Route::get('tickets', [TicketsController::class, 'index']);
 Route::middleware('auth:sanctum')->get('tickets/related', [TicketsController::class, 'related']);
 Route::get('tickets/{ticket}', [TicketsController::class, 'show']);
 Route::post('tickets', [TicketsController::class, 'store']);

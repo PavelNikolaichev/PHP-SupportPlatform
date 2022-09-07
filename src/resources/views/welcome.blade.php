@@ -19,7 +19,7 @@
                 font-family: 'Nunito', sans-serif;
             }
         </style>
-        @vite('resources/css/app.css')
+{{--        @vite('resources/css/app.css')--}}
     </head>
     <body class="antialiased">
         <h2>Laravel with react test</h2>

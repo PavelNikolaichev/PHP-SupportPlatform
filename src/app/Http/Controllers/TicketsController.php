@@ -18,7 +18,7 @@ class TicketsController extends Controller
      */
     public function index(): JsonResponse
     {
-        $tickets = Tickets::all();
+        $tickets = Tickets::with('username')->get();
 
         return response()->json($tickets, 200);
     }
@@ -59,9 +59,10 @@ class TicketsController extends Controller
      * @param Tickets $ticket
      * @return Tickets
      */
-    public function show(Tickets $ticket): Tickets
+    public function show(Tickets $ticket): JSONResponse
     {
-        return $ticket;
+        $ticket = $ticket->load('messages');
+        return response()->json($ticket, 200);
     }
 
     /**
