@@ -77,24 +77,33 @@ class Main extends Component {
         this.handleClick(ticket);
     }
 
-    handleAddTicket(product) {
-        let ticket;
-        /*Fetch API for post request */
+    handleAddTicket(ticket) {
         fetch( 'api/tickets/', {
             method:'post',
-            /* headers are important*/
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
 
-            body: JSON.stringify(product)
+            body: JSON.stringify(ticket)
         }).then(response => {
                 return response.json();
         }).then(data => {
-            ticket = data;
-            this.callMainAddTicket(ticket);
+            this.callMainAddTicket(data);
         });
+    }
+
+    handleDelete() {
+        const delProduct = this.currentTicket
+        fetch( 'api/tickets/' + this.currentTicket.current.state.ticket.id,
+            { method: 'delete' })
+            .then(response => {
+                const newItems = this.state.tickets.filter(function (item) {
+                    return item !== delProduct
+                });
+                this.setState({tickets: newItems});
+                this.handleClick(null);
+            });
     }
 
     render()
@@ -128,7 +137,11 @@ class Main extends Component {
                     </tbody>
                 </table>
 
-                <Ticket ref={this.currentTicket}/>
+                <Ticket ref={this.currentTicket} deleteCallback={(function (obj) {
+                    return function (ticket) {
+                        obj.handleDelete(ticket);
+                    }
+                })(this)}/>
                 <AddTicket onAdd={this.handleAddTicket} callMainAddTicket={(function (obj) {
                     return function (ticket) {
                         obj.addTicket(ticket);

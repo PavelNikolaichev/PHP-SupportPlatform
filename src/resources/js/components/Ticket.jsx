@@ -5,11 +5,14 @@ export class Ticket extends Component {
 
     constructor(props) {
         super(props);
+
         this.state = {
             error: null,
             isLoaded: false,
             ticket: null
         };
+
+        this.deleteCallback = this.props.deleteCallback;
     }
 
     componentDidMount() {
@@ -36,7 +39,7 @@ export class Ticket extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.ticket === null) {
+        if (prevState.ticket === null || this.state.ticket === null) {
             this.componentDidMount();
             return;
         }
@@ -75,6 +78,7 @@ export class Ticket extends Component {
                             );
                         })}
                     </ul>
+                    <button onClick={this.deleteCallback}>Delete</button>
                 </div>
             </div>
         );
