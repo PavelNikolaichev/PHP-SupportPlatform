@@ -1,72 +1,13 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-
-class Ticket extends Component {
-    style = {};
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            error: null,
-            isLoaded: false,
-            ticket: props.ticket
-        };
-    }
-
-    componentDidMount() {
-        fetch('/api/tickets/' + this.state.ticket.id).then(
-            response => response.json()
-        ).then(
-            (result) => {
-                this.setState({
-                    isLoaded: true,
-                    ticket: result
-                });
-            },
-            (error) => {
-                this.setState({
-                    isLoaded: true,
-                    error
-                });
-            }
-        );
-    }
-
-    render() {
-        const { error, isLoaded, ticket } = this.state;
-
-        if (error) {
-            return <div>Error: {error.message}</div>;
-        }
-        if (!isLoaded) {
-            return <div>Loading...</div>;
-        }
-
-        return (
-            <div className="card" style={this.style}>
-                <div className="card-header">
-                    <h5 className="card-title">{ticket.title}</h5>
-                </div>
-                <div className="card-body">
-                    <ul>
-                        {ticket.messages.map(message => {
-                            return (
-                                <li key={message.id}>
-                                    <p>{message.text}</p>
-                                    <p>{message.created_at}</p>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </div>
-            </div>
-        );
-    }
-}
+import {Ticket} from "./Ticket";
+import {AddTicket} from "./AddTicket";
 
 class Main extends Component {
     constructor(props) {
         super(props);
+
+        this.currentTicket = React.createRef();
 
         this.state = {
             error: null,
@@ -122,25 +63,49 @@ class Main extends Component {
 
     handleClick(ticket)
     {
-        this.setState({
-            currentTicket: ticket
+        this.currentTicket.current.setState({
+            ticket: ticket,
+            isLoaded: false
+        });
+    }
+
+    addTicket(ticket)
+    {
+        this.setState((prevState) => ({
+            tickets: prevState.tickets.concat(ticket)
+        }));
+        this.handleClick(ticket);
+    }
+
+    handleAddTicket(product) {
+        let ticket;
+        /*Fetch API for post request */
+        fetch( 'api/tickets/', {
+            method:'post',
+            /* headers are important*/
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(product)
+        }).then(response => {
+                return response.json();
+        }).then(data => {
+            ticket = data;
+            this.callMainAddTicket(ticket);
         });
     }
 
     render()
     {
-        const { error, isLoaded, tickets, currentTicket } = this.state;
-        let ticket;
+        const { error, isLoaded, tickets } = this.state;
 
         if (error) {
             return <div>Error: {error.message}</div>;
         }
         if (!isLoaded) {
             return <div>Loading...</div>;
-        }
-
-        if (currentTicket) {
-            ticket = <Ticket ticket={currentTicket} />;
         }
 
         return (
@@ -163,7 +128,12 @@ class Main extends Component {
                     </tbody>
                 </table>
 
-                {ticket}
+                <Ticket ref={this.currentTicket}/>
+                <AddTicket onAdd={this.handleAddTicket} callMainAddTicket={(function (obj) {
+                    return function (ticket) {
+                        obj.addTicket(ticket);
+                    }
+                })(this)}/>
             </div>
         );
     }
