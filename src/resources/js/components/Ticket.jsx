@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {UpdateTicket} from "./UpdateTicket";
+import {SendMessage} from "./SendMessage";
 
 export class Ticket extends Component {
     style = {};
@@ -51,6 +52,28 @@ export class Ticket extends Component {
         }
     }
 
+    handleSend(message)
+    {
+        message['ticket_id'] = this.state.ticket.id;
+
+        fetch( 'api/messages/', {
+            method:'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify(message)
+        }).then(response => {
+            return response.json();
+        }).then(data => {
+            let newTicket = this.state.ticket;
+            newTicket.messages.push(data);
+
+            this.setState({ticket: newTicket});
+        });
+    }
+
     render() {
         const {error, isLoaded, ticket} = this.state;
 
@@ -80,6 +103,12 @@ export class Ticket extends Component {
                             );
                         })}
                     </ul>
+
+                    <SendMessage ticket={ticket} onSend={(function (obj) {
+                        return function (ticket) {
+                            obj.handleSend(ticket);
+                        }
+                    })(this)}/>
                     <button onClick={this.deleteCallback}>Delete</button>
                     <UpdateTicket ticket={ticket} onUpdate={this.updateCallback}/>
                 </div>

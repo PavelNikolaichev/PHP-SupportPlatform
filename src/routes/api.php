@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TicketsController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('user/login', [UserController::class, 'loginAPI']);
+Route::post('user/register', [UserController::class, 'registerAPI']);
 
 //Route::middleware('auth:sanctum')->get('tickets', [TicketsController::class, 'index']);
 Route::get('tickets', [TicketsController::class, 'index']);
