@@ -94,7 +94,7 @@ class Main extends Component {
     }
 
     handleDelete() {
-        const delProduct = this.currentTicket
+        const delProduct = this.currentTicket.current
         fetch( 'api/tickets/' + this.currentTicket.current.state.ticket.id,
             { method: 'delete' })
             .then(response => {
@@ -104,6 +104,30 @@ class Main extends Component {
                 this.setState({tickets: newItems});
                 this.handleClick(null);
             });
+    }
+
+    handleUpdate(ticket) {
+        const updTicket = this.currentTicket.current;
+        fetch( 'api/tickets/' + updTicket.state.ticket.id, {
+            method:'put',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(ticket)
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then( data => {
+                const newItems = this.state.tickets.filter(function(item) {
+                    return item.id !== data.id
+                });
+
+                this.setState({tickets: newItems});
+
+                this.addTicket(data);
+            })
     }
 
     render()
@@ -140,6 +164,10 @@ class Main extends Component {
                 <Ticket ref={this.currentTicket} deleteCallback={(function (obj) {
                     return function (ticket) {
                         obj.handleDelete(ticket);
+                    }
+                })(this)} updateCallback={(function (obj) {
+                    return function (ticket) {
+                        obj.handleUpdate(ticket);
                     }
                 })(this)}/>
                 <AddTicket onAdd={this.handleAddTicket} callMainAddTicket={(function (obj) {

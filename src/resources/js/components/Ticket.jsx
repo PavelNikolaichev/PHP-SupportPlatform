@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {UpdateTicket} from "./UpdateTicket";
 
 export class Ticket extends Component {
     style = {};
@@ -13,6 +14,7 @@ export class Ticket extends Component {
         };
 
         this.deleteCallback = this.props.deleteCallback;
+        this.updateCallback = this.props.updateCallback;
     }
 
     componentDidMount() {
@@ -79,6 +81,7 @@ export class Ticket extends Component {
                         })}
                     </ul>
                     <button onClick={this.deleteCallback}>Delete</button>
+                    <UpdateTicket ticket={ticket} onUpdate={this.updateCallback}/>
                 </div>
             </div>
         );
