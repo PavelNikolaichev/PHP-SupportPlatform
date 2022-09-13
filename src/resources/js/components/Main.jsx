@@ -3,11 +3,108 @@ import ReactDOM from 'react-dom';
 import {Ticket} from "./Ticket";
 import {AddTicket} from "./AddTicket";
 
+class Login extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            error: null,
+            email: null,
+            password: null,
+        };
+
+        this.onLogin = this.props.onLogin;
+        this.handleLogin = this.handleLogin.bind(this);
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.handleLogin}>
+                <div className="form-group">
+                    <label htmlFor="email" className="col-form-label-lg">Email</label>
+                    <input className="form-control" type="text" placeholder="example@gmail.com" onChange={(e)=>this.handleInput('email',e)}/>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password" className="col-form-label-lg">Password</label>
+                    <input className="form-control" type="password" placeholder="Password" onChange={(e)=>this.handleInput('password',e)}/>
+                </div>
+                <input type="submit" value="Submit" />
+            </form>
+        )
+    }
+
+    handleInput(key, e)
+    {
+        this.setState({[key]: e.target.value});
+    };
+
+    handleLogin(e) {
+        e.preventDefault();
+        console.log(e);
+        console.log(this);
+        let data = {email: this.state.email, password: this.state.password};
+        console.log("data: " + data);
+
+        this.onLogin(data);
+    }
+}
+class Registration extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            error: null,
+            email: null,
+            password: null,
+            name: null,
+        };
+
+        this.onLogin = this.props.onLogin;
+        this.handleRegister = this.handleRegister.bind(this);
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.handleRegister}>
+                <div className="form-group">
+                    <label htmlFor="email" className="col-form-label-lg">Email</label>
+                    <input className="form-control" type="text" placeholder="example@gmail.com" onChange={(e)=>this.handleInput('email',e)}/>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="email" className="col-form-label-lg">Name</label>
+                    <input className="form-control" type="text" onChange={(e)=>this.handleInput('name',e)}/>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password" className="col-form-label-lg">Password</label>
+                    <input className="form-control" type="password" placeholder="Password" onChange={(e)=>this.handleInput('password',e)}/>
+                </div>
+                <input type="submit" value="Submit" />
+            </form>
+        )
+    }
+
+    handleInput(key, e)
+    {
+        this.setState({[key]: e.target.value});
+    };
+
+    handleRegister(e) {
+        e.preventDefault();
+        console.log(e);
+        console.log(this);
+        let data = {email: this.state.email, password: this.state.password, name: this.state.name};
+        console.log("data: " + data);
+
+        this.onLogin(data);
+    }
+}
+
 class Main extends Component {
     constructor(props) {
         super(props);
 
         this.currentTicket = React.createRef();
+        this.token = localStorage.getItem('accessToken') || null;
 
         this.state = {
             error: null,
@@ -82,7 +179,8 @@ class Main extends Component {
             method:'post',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.token
             },
 
             body: JSON.stringify(ticket)
@@ -112,7 +210,8 @@ class Main extends Component {
             method:'put',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.token
             },
             body: JSON.stringify(ticket)
         })
@@ -130,6 +229,50 @@ class Main extends Component {
             })
     }
 
+    handleLogin(loginData)
+    {
+        fetch('api/user/login', {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.token
+            },
+            body: JSON.stringify(loginData)
+        }).then(res => {
+            return res.json();
+        })
+            .then((result) => {
+                if (result['accessToken'] != null) {
+                    localStorage.setItem('accessToken', result['plainTextToken']);
+                    this.token = result['plainTextToken'];
+                }
+            });
+    }
+
+    handleRegister(registrationData)
+    {
+        fetch('api/user/register', {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + this.token
+            },
+            body: JSON.stringify(registrationData)
+        }).then(res => {
+            return res.json();
+        })
+            .then((result) => {
+                // TODO: Check the correctness of this result.
+                console.log(result);
+                if (result['accessToken'] != null) {
+                    localStorage.setItem('accessToken', result['plainTextToken']);
+                    this.token = result['plainTextToken'];
+                }
+            });
+    }
+
     render()
     {
         const { error, isLoaded, tickets } = this.state;
@@ -143,6 +286,11 @@ class Main extends Component {
 
         return (
             <div>
+                {this.token == null
+                    ? <Login onLogin={this.handleLogin.bind(this)}/>
+                    : <Registration onRegister={this.handleRegister.bind(this)}>
+                }
+
                 <h3>All Tickets</h3>
                 <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
