@@ -18,6 +18,12 @@ class TicketsController extends Controller
      */
     public function index(): JsonResponse
     {
+//        if (Auth::user()->can('admin', Tickets::class)) {
+//            $tickets = Tickets::all()->get();
+//        } else {
+//            $tickets = Tickets::where('user_id', Auth::id())->get();
+//        }
+
         $tickets = Tickets::with('username')->get();
 
         return response()->json($tickets, 200);
@@ -48,7 +54,10 @@ class TicketsController extends Controller
      */
     public function store(StoreTicketsRequest $request): JsonResponse
     {
-        $ticket = Tickets::create($request->all());
+        $requestParams = $request->all();
+        $requestParams['user_id'] = Auth::user()->id;
+
+        $ticket = Tickets::create($requestParams);
 
         return response()->json($ticket, 201);
     }
@@ -98,6 +107,12 @@ class TicketsController extends Controller
      */
     public function destroy(Tickets $ticket): JsonResponse
     {
+        if (!Auth::user()->can('admin', Tickets::class)) {
+            if (!($ticket->user_id === Auth::user()->id)) {
+                return response()->json(['error' => 'You are not allowed to delete this ticket'], 403);
+            }
+        }
+
         $ticket->delete();
 
         return response()->json(null, 204);

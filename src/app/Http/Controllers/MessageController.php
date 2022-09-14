@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateMessageRequest;
 use App\Models\Message;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
@@ -40,6 +41,7 @@ class MessageController extends Controller
      */
     public function store(StoreMessageRequest $request): JsonResponse
     {
+//        Auth::user()->id;
         $message = Message::create($request->all());
 
         return response()->json($message, 201);
@@ -77,7 +79,7 @@ class MessageController extends Controller
     public function update(UpdateMessageRequest $request, Message $message): JsonResponse
     {
         $message->update($request->all());
-
+//        $requestParams['user_id'] = Auth::user()->id;
         return response()->json($message, 200);
     }
 
@@ -89,6 +91,10 @@ class MessageController extends Controller
      */
     public function destroy(Message $message): JsonResponse
     {
+
+        // check if user has the specified rights to delete the ticket or is the author of the ticket.
+        // if everything ok - go on.
+        // otherwise response with an error
         $message->delete();
 
         return response()->json(null, 204);

@@ -40,14 +40,37 @@ class Login extends Component {
 
     handleLogin(e) {
         e.preventDefault();
-        console.log(e);
-        console.log(this);
         let data = {email: this.state.email, password: this.state.password};
-        console.log("data: " + data);
 
         this.onLogin(data);
     }
 }
+class Logout extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            error: null,
+        };
+
+        this.onLogout = this.props.onLogout;
+        this.handleLogout = this.handleLogout.bind(this);
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.handleLogout}>
+                <input type="submit" value="Submit"/>
+            </form>
+        )
+    }
+
+    handleLogout(e) {
+        e.preventDefault();
+        this.onLogout();
+    }
+}
+
 class Registration extends Component {
     constructor(props) {
         super(props);
@@ -59,7 +82,7 @@ class Registration extends Component {
             name: null,
         };
 
-        this.onLogin = this.props.onLogin;
+        this.onLogin = this.props.onRegister;
         this.handleRegister = this.handleRegister.bind(this);
     }
 
@@ -90,10 +113,7 @@ class Registration extends Component {
 
     handleRegister(e) {
         e.preventDefault();
-        console.log(e);
-        console.log(this);
         let data = {email: this.state.email, password: this.state.password, name: this.state.name};
-        console.log("data: " + data);
 
         this.onLogin(data);
     }
@@ -115,7 +135,11 @@ class Main extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/tickets/').then(
+        fetch('/api/tickets/', {
+                headers: {
+                    'Authorization': 'Bearer ' + this.token
+                }
+            }).then(
             response => response.json()
         ).then(
             (result) => {
@@ -266,10 +290,10 @@ class Main extends Component {
             .then((result) => {
                 // TODO: Check the correctness of this result.
                 console.log(result);
-                if (result['accessToken'] != null) {
-                    localStorage.setItem('accessToken', result['plainTextToken']);
-                    this.token = result['plainTextToken'];
-                }
+                // if (result['accessToken'] != null) {
+                //     localStorage.setItem('accessToken', result['plainTextToken']);
+                //     this.token = result['plainTextToken'];
+                // }
             });
     }
 
@@ -283,13 +307,18 @@ class Main extends Component {
         if (!isLoaded) {
             return <div>Loading...</div>;
         }
+        if (this.token == null) {
+            return(
+            <div>
+                <Login onLogin={this.handleLogin.bind(this)}/>
+                <Registration onRegister={this.handleRegister.bind(this)}/>
+            </div>
+            )
+        }
 
         return (
             <div>
-                {this.token == null
-                    ? <Login onLogin={this.handleLogin.bind(this)}/>
-                    : <Registration onRegister={this.handleRegister.bind(this)}>
-                }
+                {/*<Logout/>*/}
 
                 <h3>All Tickets</h3>
                 <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">

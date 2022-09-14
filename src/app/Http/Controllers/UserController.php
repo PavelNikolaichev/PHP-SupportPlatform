@@ -8,7 +8,6 @@ use App\Services\RegisterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-// TODO: add email confirmation with `remember me` functionality
 class UserController extends Controller
 {
     public function registrationIndex()
