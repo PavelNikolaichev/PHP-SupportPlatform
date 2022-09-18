@@ -11,11 +11,9 @@ export class AddTicket extends Component {
             isLoaded: false,
             title: null,
             status: null,
-            user_id: null,
         };
 
         this.onAdd = this.props.onAdd;
-        this.callMainAddTicket=this.props.callMainAddTicket;
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -29,15 +27,14 @@ export class AddTicket extends Component {
         e.preventDefault();
         let data = this.onAdd({
             title: this.state.title,
-            status: this.state.status,
-            user_id: this.state.user_id
+            status: this.state.status
         });
     };
 
     render() {
         return(
             <div>
-                <h2> Add new product </h2>
+                <h2> Add new ticket </h2>
                 <div style={this.style}>
                     <form onSubmit={this.handleSubmit}>
                         <label> Title:
@@ -45,9 +42,6 @@ export class AddTicket extends Component {
                         </label>
                         <label> Status:
                             <input type="text" onChange={(e)=>this.handleInput('status',e)} />
-                        </label>
-                        <label> user_id:
-                            <input type="text" onChange={(e)=>this.handleInput('user_id',e)} />
                         </label>
 
                         <input type="submit" value="Submit" />

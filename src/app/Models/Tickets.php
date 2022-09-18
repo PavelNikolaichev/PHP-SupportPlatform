@@ -37,22 +37,12 @@ class Tickets extends Model
         $this->attributes['status'] = $this->status_codes[$status];
     }
 
-    public function getUsernameAttribute()
-    {
-        return $this->belongsTo(User::class, 'user_id')->get()[0]->name;
-    }
-
     public function username()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
     public function messages()
-    {
-        return $this->hasMany(Message::class, 'ticket_id');
-    }
-
-    public function getMessagesAttribute()
     {
         return $this->hasMany(Message::class, 'ticket_id');
     }

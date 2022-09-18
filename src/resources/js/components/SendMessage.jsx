@@ -10,8 +10,7 @@ export class SendMessage extends Component {
             error: null,
             isLoaded: false,
             text: null,
-            ticket_id: null,
-            user_id: null,
+            ticket_id: null
         };
 
         this.onSend = this.props.onSend;
@@ -30,7 +29,6 @@ export class SendMessage extends Component {
 
         let data = this.onSend({
             text: this.state.text,
-            user_id: this.state.user_id
         });
     };
 
@@ -42,9 +40,6 @@ export class SendMessage extends Component {
                     <form onSubmit={this.handleSubmit}>
                         <label> Text:
                             <input type="text" onChange={(e)=>this.handleInput('text',e)} />
-                        </label>
-                        <label> User id:
-                            <input type="text" onChange={(e)=>this.handleInput('user_id',e)} />
                         </label>
 
                         <input type="submit" value="Submit" />

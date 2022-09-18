@@ -23,25 +23,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('user/login', [UserController::class, 'loginAPI']);
 Route::post('user/register', [UserController::class, 'registerAPI']);
 
-//Route::middleware('auth:sanctum')->get('tickets', [TicketsController::class, 'index']);
-Route::get('tickets', [TicketsController::class, 'index']);
-Route::middleware('auth:sanctum')->get('tickets/related', [TicketsController::class, 'related']);
-//Route::middleware('auth:sanctum')->get('tickets/{ticket}', [TicketsController::class, 'show']);
-Route::get('tickets/{ticket}', [TicketsController::class, 'show']);
-//Route::middleware('auth:sanctum')->post('tickets', [TicketsController::class, 'store']);
-Route::post('tickets', [TicketsController::class, 'store']);
-// Use token:ability to check if user has access to edit ticket.
-Route::put('tickets/{ticket}', [TicketsController::class, 'update']);
-//Route::middleware('auth:sanctum')->put('tickets/{ticket}', [TicketsController::class, 'update']);
-Route::delete('tickets/{ticket}', [TicketsController::class, 'destroy']);
+Route::middleware('auth:sanctum')->group(function(){
+    Route::get('tickets', [TicketsController::class, 'index']);
+    Route::post('tickets', [TicketsController::class, 'store']);
+    Route::put('tickets/{ticket}', [TicketsController::class, 'update']);
+    Route::get('tickets/{ticket}', [TicketsController::class, 'show']);
+    Route::delete('tickets/{ticket}', [TicketsController::class, 'destroy']);
+    Route::post('tickets/{ticket}/messages', [MessageController::class, 'store']);
 
-Route::get('messages', [MessageController::class, 'index']);
-//Route::middleware('auth:sanctum')->get('messages', [MessageController::class, 'index']);
-//Route::middleware('auth:sanctum')->get('messages/{message}', [MessageController::class, 'show']);
-Route::get('messages/{message}', [MessageController::class, 'show']);
-//Route::middleware('auth:sanctum')->post('messages', [MessageController::class, 'store']);
-Route::post('messages', [MessageController::class, 'store']);
-Route::put('messages/{message}', [MessageController::class, 'update']);
-//Route::middleware('auth:sanctum')->put('messages/{message}', [MessageController::class, 'update']);
-Route::delete('messages/{message}', [MessageController::class, 'destroy']);
-//Route::middleware('auth:sanctum')->delete('messages/{message}', [MessageController::class, 'destroy']);
+    Route::get('messages', [MessageController::class, 'index']);
+    Route::get('messages/{message}', [MessageController::class, 'show']);
+    Route::post('messages', [MessageController::class, 'store']);
+
+//    Route::put('messages/{message}', [MessageController::class, 'update']);
+//    Route::delete('messages/{message}', [MessageController::class, 'destroy']);
+});

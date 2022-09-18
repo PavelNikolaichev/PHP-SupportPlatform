@@ -60,7 +60,8 @@ export class Ticket extends Component {
             method:'post',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
             },
 
             body: JSON.stringify(message)

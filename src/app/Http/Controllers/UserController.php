@@ -35,7 +35,6 @@ class UserController extends Controller
             return redirect(route('user.private'));
         }
 
-        // TODO: add stronger validation methods
         $validateFields = $request->validate([
             'name' => 'required',
             'email' => 'required|email',

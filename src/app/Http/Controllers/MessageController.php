@@ -24,16 +24,6 @@ class MessageController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param StoreMessageRequest $request
@@ -41,8 +31,18 @@ class MessageController extends Controller
      */
     public function store(StoreMessageRequest $request): JsonResponse
     {
-//        Auth::user()->id;
-        $message = Message::create($request->all());
+        // check whether the ticket is related to the user
+//        $ticket = Tickets::find($request->ticket_id);
+//        if ($ticket->status === 'resolved') {
+//            return response()->json(['error' => 'Ticket is resolved'], 403);
+//        }
+//        if ($ticket->user_id !== Auth::user()->id || !Auth::user()->is_suport) {
+//            return response()->json(['error' => 'Unauthorized'], 401);
+//        }
+        $requestParams = $request->all();
+        $requestParams += ['user_id' => Auth::user()->id];
+
+        $message = Message::create($requestParams);
 
         return response()->json($message, 201);
     }
@@ -59,17 +59,6 @@ class MessageController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param Message $message
-     * @return Response
-     */
-    public function edit(Message $message)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param UpdateMessageRequest $request
@@ -79,7 +68,6 @@ class MessageController extends Controller
     public function update(UpdateMessageRequest $request, Message $message): JsonResponse
     {
         $message->update($request->all());
-//        $requestParams['user_id'] = Auth::user()->id;
         return response()->json($message, 200);
     }
 

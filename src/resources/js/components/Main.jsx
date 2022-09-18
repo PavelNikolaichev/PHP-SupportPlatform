@@ -2,129 +2,16 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import {Ticket} from "./Ticket";
 import {AddTicket} from "./AddTicket";
-
-class Login extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            error: null,
-            email: null,
-            password: null,
-        };
-
-        this.onLogin = this.props.onLogin;
-        this.handleLogin = this.handleLogin.bind(this);
-    }
-
-    render() {
-        return (
-            <form onSubmit={this.handleLogin}>
-                <div className="form-group">
-                    <label htmlFor="email" className="col-form-label-lg">Email</label>
-                    <input className="form-control" type="text" placeholder="example@gmail.com" onChange={(e)=>this.handleInput('email',e)}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password" className="col-form-label-lg">Password</label>
-                    <input className="form-control" type="password" placeholder="Password" onChange={(e)=>this.handleInput('password',e)}/>
-                </div>
-                <input type="submit" value="Submit" />
-            </form>
-        )
-    }
-
-    handleInput(key, e)
-    {
-        this.setState({[key]: e.target.value});
-    };
-
-    handleLogin(e) {
-        e.preventDefault();
-        let data = {email: this.state.email, password: this.state.password};
-
-        this.onLogin(data);
-    }
-}
-class Logout extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            error: null,
-        };
-
-        this.onLogout = this.props.onLogout;
-        this.handleLogout = this.handleLogout.bind(this);
-    }
-
-    render() {
-        return (
-            <form onSubmit={this.handleLogout}>
-                <input type="submit" value="Submit"/>
-            </form>
-        )
-    }
-
-    handleLogout(e) {
-        e.preventDefault();
-        this.onLogout();
-    }
-}
-
-class Registration extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            error: null,
-            email: null,
-            password: null,
-            name: null,
-        };
-
-        this.onLogin = this.props.onRegister;
-        this.handleRegister = this.handleRegister.bind(this);
-    }
-
-    render() {
-        return (
-            <form onSubmit={this.handleRegister}>
-                <div className="form-group">
-                    <label htmlFor="email" className="col-form-label-lg">Email</label>
-                    <input className="form-control" type="text" placeholder="example@gmail.com" onChange={(e)=>this.handleInput('email',e)}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="email" className="col-form-label-lg">Name</label>
-                    <input className="form-control" type="text" onChange={(e)=>this.handleInput('name',e)}/>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password" className="col-form-label-lg">Password</label>
-                    <input className="form-control" type="password" placeholder="Password" onChange={(e)=>this.handleInput('password',e)}/>
-                </div>
-                <input type="submit" value="Submit" />
-            </form>
-        )
-    }
-
-    handleInput(key, e)
-    {
-        this.setState({[key]: e.target.value});
-    };
-
-    handleRegister(e) {
-        e.preventDefault();
-        let data = {email: this.state.email, password: this.state.password, name: this.state.name};
-
-        this.onLogin(data);
-    }
-}
+import {Registration} from "./Registration";
+import {Login} from "./Login";
+import {Logout} from "./Logout";
 
 class Main extends Component {
     constructor(props) {
         super(props);
 
         this.currentTicket = React.createRef();
-        this.token = localStorage.getItem('accessToken') || null;
+        this.token = null;
 
         this.state = {
             error: null,
@@ -135,26 +22,29 @@ class Main extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/tickets/', {
-                headers: {
-                    'Authorization': 'Bearer ' + this.token
+        this.token = localStorage.getItem('accessToken') || null;
+        if (this.token !== null) {
+            fetch('/api/tickets/', {
+                    headers: {
+                        'Authorization': 'Bearer ' + this.token
+                    }
+                }).then(
+                response => response.json()
+            ).then(
+                (result) => {
+                    this.setState({
+                        isLoaded: true,
+                        tickets: result
+                    });
+                },
+                (error) => {
+                    this.setState({
+                        isLoaded: true,
+                        error
+                    });
                 }
-            }).then(
-            response => response.json()
-        ).then(
-            (result) => {
-                this.setState({
-                    isLoaded: true,
-                    tickets: result
-                });
-            },
-            (error) => {
-                this.setState({
-                    isLoaded: true,
-                    error
-                });
-            }
-        );
+            );
+        }
     }
 
     renderTickets(tickets)
@@ -192,10 +82,12 @@ class Main extends Component {
 
     addTicket(ticket)
     {
-        this.setState((prevState) => ({
-            tickets: prevState.tickets.concat(ticket)
-        }));
-        this.handleClick(ticket);
+        if (ticket) {
+            this.setState((prevState) => ({
+                tickets: prevState.tickets.concat(ticket)
+            }));
+            this.handleClick(ticket);
+        }
     }
 
     handleAddTicket(ticket) {
@@ -209,9 +101,10 @@ class Main extends Component {
 
             body: JSON.stringify(ticket)
         }).then(response => {
-                return response.json();
+            return response.json();
         }).then(data => {
-            this.callMainAddTicket(data);
+            if(!data['message'])
+                this.addTicket(data);
         });
     }
 
@@ -288,18 +181,33 @@ class Main extends Component {
             return res.json();
         })
             .then((result) => {
-                // TODO: Check the correctness of this result.
-                console.log(result);
-                // if (result['accessToken'] != null) {
-                //     localStorage.setItem('accessToken', result['plainTextToken']);
-                //     this.token = result['plainTextToken'];
-                // }
+                if (result['accessToken'] != null) {
+                    localStorage.setItem('accessToken', result['plainTextToken']);
+                    this.token = result['plainTextToken'];
+                }
             });
+    }
+
+    handleLogout()
+    {
+        if (this.token != null) {
+            localStorage.removeItem('accessToken');
+            this.token = null;
+        }
     }
 
     render()
     {
         const { error, isLoaded, tickets } = this.state;
+
+        if (this.token == null) {
+            return(
+                <div>
+                    <Login onLogin={this.handleLogin.bind(this)}/>
+                    <Registration onRegister={this.handleRegister.bind(this)}/>
+                </div>
+            )
+        }
 
         if (error) {
             return <div>Error: {error.message}</div>;
@@ -307,18 +215,9 @@ class Main extends Component {
         if (!isLoaded) {
             return <div>Loading...</div>;
         }
-        if (this.token == null) {
-            return(
-            <div>
-                <Login onLogin={this.handleLogin.bind(this)}/>
-                <Registration onRegister={this.handleRegister.bind(this)}/>
-            </div>
-            )
-        }
-
         return (
             <div>
-                {/*<Logout/>*/}
+                <Logout onLogout={this.handleLogout.bind(this)}/>
 
                 <h3>All Tickets</h3>
                 <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
@@ -347,11 +246,7 @@ class Main extends Component {
                         obj.handleUpdate(ticket);
                     }
                 })(this)}/>
-                <AddTicket onAdd={this.handleAddTicket} callMainAddTicket={(function (obj) {
-                    return function (ticket) {
-                        obj.addTicket(ticket);
-                    }
-                })(this)}/>
+                <AddTicket onAdd={this.handleAddTicket.bind(this)}/>
             </div>
         );
     }

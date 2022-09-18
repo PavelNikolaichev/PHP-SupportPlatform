@@ -6,7 +6,6 @@ use App\Http\Requests\StoreTicketsRequest;
 use App\Http\Requests\UpdateTicketsRequest;
 use App\Models\Tickets;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class TicketsController extends Controller
@@ -18,32 +17,13 @@ class TicketsController extends Controller
      */
     public function index(): JsonResponse
     {
-//        if (Auth::user()->can('admin', Tickets::class)) {
-//            $tickets = Tickets::all()->get();
-//        } else {
-//            $tickets = Tickets::where('user_id', Auth::id())->get();
-//        }
-
-        $tickets = Tickets::with('username')->get();
+        if (Auth::user()->is_support) {
+            $tickets = Tickets::with('username')->get();
+        } else {
+            $tickets = Tickets::with('username')->where('user_id', Auth::id())->get();
+        }
 
         return response()->json($tickets, 200);
-    }
-
-    public function related(): JsonResponse
-    {
-        $tickets = Tickets::where('user_id', Auth::user()->id)->get();
-
-        return response()->json($tickets, 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -55,10 +35,9 @@ class TicketsController extends Controller
     public function store(StoreTicketsRequest $request): JsonResponse
     {
         $requestParams = $request->all();
-        $requestParams['user_id'] = Auth::user()->id;
+        $requestParams += ['user_id' => Auth::user()->id];
 
         $ticket = Tickets::create($requestParams);
-
         return response()->json($ticket, 201);
     }
 
@@ -70,19 +49,12 @@ class TicketsController extends Controller
      */
     public function show(Tickets $ticket): JSONResponse
     {
+        if ($ticket->user_id !== Auth::user()->id && !Auth::user()->is_support) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         $ticket = $ticket->load('messages');
         return response()->json($ticket, 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param Tickets $tickets
-     * @return Response
-     */
-    public function edit(Tickets $tickets): Response
-    {
-        //
     }
 
     /**
@@ -94,6 +66,10 @@ class TicketsController extends Controller
      */
     public function update(UpdateTicketsRequest $request, Tickets $ticket): JsonResponse
     {
+        if (!Auth::user()->is_support) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         $ticket->update($request->all());
 
         return response()->json($ticket, 200);
@@ -107,7 +83,7 @@ class TicketsController extends Controller
      */
     public function destroy(Tickets $ticket): JsonResponse
     {
-        if (!Auth::user()->can('admin', Tickets::class)) {
+        if (!Auth::user()->is_support) {
             if (!($ticket->user_id === Auth::user()->id)) {
                 return response()->json(['error' => 'You are not allowed to delete this ticket'], 403);
             }
