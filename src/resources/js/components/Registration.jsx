@@ -26,8 +26,9 @@ export class Registration extends Component {
                                onChange={(e) => this.handleInput('email', e)}/>
                     </div>
                     <div className="form-group">
-                        <label htmlFor="email" className="col-form-label-lg">Name</label>
-                        <input className="form-control" type="text" onChange={(e) => this.handleInput('name', e)}/>
+                        <label htmlFor="name" className="col-form-label-lg">Name</label>
+                        <input className="form-control" type="text" placeholder="Username"
+                               onChange={(e) => this.handleInput('name', e)}/>
                     </div>
                     <div className="form-group">
                         <label htmlFor="password" className="col-form-label-lg">Password</label>

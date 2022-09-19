@@ -23,7 +23,15 @@ export class Ticket extends Component {
             return;
         }
 
-        fetch('/api/tickets/' + this.state.ticket.id).then(
+        fetch('/api/tickets/' + this.state.ticket.id,
+            {
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                }
+            }).then(
             response => response.json()
         ).then(
             (result) => {
@@ -42,14 +50,7 @@ export class Ticket extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.ticket === null || this.state.ticket === null) {
-            this.componentDidMount();
-            return;
-        }
-
-        if (this.state.ticket.id !== prevState.ticket.id) {
-            this.componentDidMount();
-        }
+        this.componentDidMount();
     }
 
     handleSend(message)

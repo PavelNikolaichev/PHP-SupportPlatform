@@ -83,10 +83,8 @@ class TicketsController extends Controller
      */
     public function destroy(Tickets $ticket): JsonResponse
     {
-        if (!Auth::user()->is_support) {
-            if (!($ticket->user_id === Auth::user()->id)) {
-                return response()->json(['error' => 'You are not allowed to delete this ticket'], 403);
-            }
+        if (!Auth::user()->is_support && !($ticket->user_id === Auth::user()->id)) {
+            return response()->json(['error' => 'You are not allowed to delete this ticket'], 403);
         }
 
         $ticket->delete();

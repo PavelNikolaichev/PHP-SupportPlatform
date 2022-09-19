@@ -11,7 +11,7 @@ class Main extends Component {
         super(props);
 
         this.currentTicket = React.createRef();
-        this.token = null;
+        this.token = localStorage.getItem('accessToken');
 
         this.state = {
             error: null,
@@ -22,7 +22,6 @@ class Main extends Component {
     }
 
     componentDidMount() {
-        this.token = localStorage.getItem('accessToken') || null;
         if (this.token !== null) {
             fetch('/api/tickets/', {
                     headers: {
@@ -163,6 +162,7 @@ class Main extends Component {
                 if (result['accessToken'] != null) {
                     localStorage.setItem('accessToken', result['plainTextToken']);
                     this.token = result['plainTextToken'];
+                    this.componentDidMount();
                 }
             });
     }
@@ -184,6 +184,7 @@ class Main extends Component {
                 if (result['accessToken'] != null) {
                     localStorage.setItem('accessToken', result['plainTextToken']);
                     this.token = result['plainTextToken'];
+                    this.componentDidMount();
                 }
             });
     }
@@ -193,6 +194,12 @@ class Main extends Component {
         if (this.token != null) {
             localStorage.removeItem('accessToken');
             this.token = null;
+            this.setState({
+                isLoaded: false,
+                tickets: [],
+                currentTicket: null,
+            });
+            this.componentDidMount();
         }
     }
 

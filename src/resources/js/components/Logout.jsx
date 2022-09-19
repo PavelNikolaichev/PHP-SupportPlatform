@@ -15,7 +15,7 @@ export class Logout extends Component {
     render() {
         return (
             <form onSubmit={this.handleLogout}>
-                <input type="submit" value="Submit"/>
+                <input type="submit" value="Logout"/>
             </form>
         )
     }
