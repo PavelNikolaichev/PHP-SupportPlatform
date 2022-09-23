@@ -1,6 +1,8 @@
 module.exports = {
     content: [
-        './resources/**/*.{html,js}',
+        './resources/views/*.{html,js,php}',
+        './resources/js/*.{html,js,jsx}',
+        './resources/js/**/*.{html,js,jsx}',
         // './components/**/*.{html,js}',
     ],
 }

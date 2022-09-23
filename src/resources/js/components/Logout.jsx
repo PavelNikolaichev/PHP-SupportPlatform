@@ -15,7 +15,11 @@ export class Logout extends Component {
     render() {
         return (
             <form onSubmit={this.handleLogout}>
-                <input type="submit" value="Logout"/>
+                <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit">
+                    Logout
+                </button>
             </form>
         )
     }

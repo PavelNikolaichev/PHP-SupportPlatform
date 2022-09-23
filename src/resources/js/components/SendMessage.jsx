@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 
 export class SendMessage extends Component {
-    style = {};
-
     constructor(props) {
         super(props);
 
@@ -34,17 +32,23 @@ export class SendMessage extends Component {
 
     render() {
         return(
-            <div>
-                <h2>Send new message</h2>
-                <div style={this.style}>
-                    <form onSubmit={this.handleSubmit}>
-                        <label> Text:
-                            <input type="text" onChange={(e)=>this.handleInput('text',e)} />
-                        </label>
+            <div className="flex items-center justify-between w-full p-3 border-t border-gray-300">
+                {/*<form onSubmit={this.handleSubmit}>*/}
+                    <input type="text" placeholder="Message"
+                           className="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
+                           name="message" required
+                           onChange={(e)=>this.handleInput('text',e)}
+                    />
 
-                        <input type="submit" value="Submit" />
-                    </form>
-                </div>
+                    <button type="submit" onClick={this.handleSubmit}>
+                        <svg className="w-5 h-5 text-gray-500 origin-center transform rotate-90"
+                             xmlns="http://www.w3.org/2000/svg"
+                             viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                        </svg>
+                    </button>
+                {/*</form>*/}
             </div>
         );
     }

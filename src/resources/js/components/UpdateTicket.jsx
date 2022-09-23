@@ -10,12 +10,10 @@ export class UpdateTicket extends Component {
             error: null,
             isLoaded: false,
             title: null,
-            status: null,
-            // user_id: null,
+            status: null
         };
 
         this.onUpdate = this.props.onUpdate;
-        // this.callMainAddTicket=this.props.callMainAddTicket;
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -29,8 +27,7 @@ export class UpdateTicket extends Component {
         e.preventDefault();
         let data = this.onUpdate({
             title: this.state.title,
-            status: this.state.status,
-            // user_id: this.state.user_id
+            status: this.state.status
         });
     };
 
@@ -46,11 +43,11 @@ export class UpdateTicket extends Component {
                         <label> Status:
                             <input type="text" onChange={(e)=>this.handleInput('status',e)} />
                         </label>
-                        {/*<label> user_id:*/}
-                        {/*    <input type="text" onChange={(e)=>this.handleInput('user_id',e)} />*/}
-                        {/*</label>*/}
-
-                        <input type="submit" value="Submit" />
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                            type="submit">
+                            Update ticket
+                        </button>
                     </form>
                 </div>
             </div>

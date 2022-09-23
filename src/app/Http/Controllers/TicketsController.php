@@ -18,9 +18,9 @@ class TicketsController extends Controller
     public function index(): JsonResponse
     {
         if (Auth::user()->is_support) {
-            $tickets = Tickets::with('username')->get();
+            $tickets = Tickets::with('username:name')->get();
         } else {
-            $tickets = Tickets::with('username')->where('user_id', Auth::id())->get();
+            $tickets = Tickets::with('username:name')->where('user_id', Auth::id())->get();
         }
 
         return response()->json($tickets, 200);
@@ -36,6 +36,7 @@ class TicketsController extends Controller
     {
         $requestParams = $request->all();
         $requestParams += ['user_id' => Auth::user()->id];
+        $requestParams += ['status' => 'in progress'];
 
         $ticket = Tickets::create($requestParams);
         return response()->json($ticket, 201);
@@ -53,7 +54,7 @@ class TicketsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $ticket = $ticket->load('messages');
+        $ticket = $ticket->load('username', 'messages');
         return response()->json($ticket, 200);
     }
 
