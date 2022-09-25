@@ -20,7 +20,7 @@ class TicketsController extends Controller
         if (Auth::user()->is_support) {
             $tickets = Tickets::with('username:name')->get();
         } else {
-            $tickets = Tickets::with('username:name')->where('user_id', Auth::id())->get();
+            $tickets = Tickets::with('username:id,name')->where('user_id', Auth::id())->get();
         }
 
         return response()->json($tickets, 200);
@@ -38,7 +38,8 @@ class TicketsController extends Controller
         $requestParams += ['user_id' => Auth::user()->id];
         $requestParams += ['status' => 'in progress'];
 
-        $ticket = Tickets::create($requestParams);
+        $ticket = (Tickets::create($requestParams))->load('username:id,name');
+
         return response()->json($ticket, 201);
     }
 
@@ -46,7 +47,7 @@ class TicketsController extends Controller
      * Display the specified resource.
      *
      * @param Tickets $ticket
-     * @return Tickets
+     * @return JsonResponse
      */
     public function show(Tickets $ticket): JSONResponse
     {
@@ -54,7 +55,7 @@ class TicketsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $ticket = $ticket->load('username', 'messages');
+        $ticket = $ticket->load('username:id,name', 'messages');
         return response()->json($ticket, 200);
     }
 
@@ -73,7 +74,7 @@ class TicketsController extends Controller
 
         $ticket->update($request->all());
 
-        return response()->json($ticket, 200);
+        return response()->json($ticket->load('username:id,name'), 200);
     }
 
     /**

@@ -31,6 +31,9 @@ class RegisterService
         Auth::login($user);
         $token = $request->user()->createToken('Bearer');
 
-        return response()->json($token, 201);
+        return response()->json([
+            'token' => $token,
+            'is_support' => $request->user()->is_support
+        ], 201);
     }
 }

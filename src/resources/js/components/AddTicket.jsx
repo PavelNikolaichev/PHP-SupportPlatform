@@ -33,15 +33,17 @@ export class AddTicket extends Component {
         return(
             <div>
                 <div style={this.style}>
-                    <form onSubmit={this.handleSubmit}>
-                        <label> Title:
-                            <input type="text" onChange={(e)=>this.handleInput('title',e)} />
-                        </label>
-                        <button
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                            type="submit">
-                            Create ticket
-                        </button>
+                    <form className="w-full max-w-sm" onSubmit={this.handleSubmit}>
+                        <div className="flex items-center border-b border-teal-500 py-2">
+                            <input
+                                className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                                type="text" placeholder="Help me" aria-label="Full name" onChange={(e)=>this.handleInput('title',e)} />
+                                <button
+                                    className="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded"
+                                    type="submit">
+                                    Create ticket
+                                </button>
+                        </div>
                     </form>
                 </div>
             </div>
