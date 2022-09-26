@@ -83,7 +83,7 @@ class TicketsController extends Controller
             return response()->json(['message' => 'No data to update'], 400);
         }
 
-        $ticket->update($request->all());
+        $ticket->update($data);
 
         return response()->json($ticket->load('username:id,name'), 200);
     }

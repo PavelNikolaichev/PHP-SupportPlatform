@@ -21,19 +21,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/ticket-list', [TicketsController::class, 'index']);
-
-Route::name('user.')->group(function() {
-    Route::view('/private', 'private')->middleware('auth:sanctum')->name('private');
-    Route::get('/login', [UserController::class, 'loginIndex'])->name('login');
-
-    Route::post('/login', [UserController::class, 'login']);
-    Route::get('/logout', [UserController::class, 'logout'])->name('logout');
-    Route::get('/registration', [UserController::class, 'registrationIndex'])->name('registration');
-
-    Route::post('/registration', [UserController::class, 'save']);
-});
-
 Route::get('tokens/create', function(Request $request) {
     if ($request->user() === null) {
         return response()->json('You are not logged in', 401);
