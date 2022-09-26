@@ -21,6 +21,12 @@ class Tickets extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'freezed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function getStatusAttribute(): string
     {
         return array_flip($this->status_codes)[$this->attributes['status']];
@@ -31,12 +37,12 @@ class Tickets extends Model
         $this->attributes['status'] = $this->status_codes[$status];
     }
 
-    public function getUsernameAttribute()
+    public function username()
     {
-        return $this->belongsTo(User::class, 'user_id')->get()[0]->name;
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function getMessagesAttribute()
+    public function messages()
     {
         return $this->hasMany(Message::class, 'ticket_id');
     }

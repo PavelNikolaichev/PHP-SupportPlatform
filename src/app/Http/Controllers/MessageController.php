@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMessageRequest;
 use App\Http\Requests\UpdateMessageRequest;
 use App\Models\Message;
+use App\Models\Tickets;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
@@ -17,19 +19,13 @@ class MessageController extends Controller
      */
     public function index(): JsonResponse
     {
+        if (!Auth::user()->is_support) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         $messages = Message::all();
 
         return response()->json($messages, 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -40,7 +36,19 @@ class MessageController extends Controller
      */
     public function store(StoreMessageRequest $request): JsonResponse
     {
-        $message = Message::create($request->all());
+        $ticket = Tickets::find($request->ticket_id);
+        if ($ticket->status === 'resolved') {
+            return response()->json(['error' => 'Ticket is resolved'], 403);
+        }
+
+        if ($ticket->user_id !== Auth::user()->id && !Auth::user()->is_support) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $requestParams = $request->all();
+        $requestParams += ['user_id' => Auth::user()->id];
+
+        $message = Message::create($requestParams);
 
         return response()->json($message, 201);
     }
@@ -49,22 +57,15 @@ class MessageController extends Controller
      * Display the specified resource.
      *
      * @param Message $message
-     * @return Message
+     * @return Message|null
      */
-    public function show(Message $message): Message
+    public function show(Message $message): ?Message
     {
-        return $message;
-    }
+        if ($message->user_id !== Auth::user()->id && !Auth::user()->is_support) {
+            return null;
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param Message $message
-     * @return Response
-     */
-    public function edit(Message $message)
-    {
-        //
+        return $message;
     }
 
     /**
@@ -76,8 +77,11 @@ class MessageController extends Controller
      */
     public function update(UpdateMessageRequest $request, Message $message): JsonResponse
     {
-        $message->update($request->all());
+        if ($message->user_id !== Auth::user()->id && !Auth::user()->is_support) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
+        $message->update($request->all());
         return response()->json($message, 200);
     }
 
@@ -89,6 +93,10 @@ class MessageController extends Controller
      */
     public function destroy(Message $message): JsonResponse
     {
+        if ($message->user_id !== Auth::user()->id && !Auth::user()->is_support) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         $message->delete();
 
         return response()->json(null, 204);
