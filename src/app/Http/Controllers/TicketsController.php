@@ -18,7 +18,7 @@ class TicketsController extends Controller
     public function index(): JsonResponse
     {
         if (Auth::user()->is_support) {
-            $tickets = Tickets::with('username:name')->get();
+            $tickets = Tickets::with('username:id,name')->get();
         } else {
             $tickets = Tickets::with('username:id,name')->where('user_id', Auth::id())->get();
         }
@@ -52,7 +52,7 @@ class TicketsController extends Controller
     public function show(Tickets $ticket): JSONResponse
     {
         if ($ticket->user_id !== Auth::user()->id && !Auth::user()->is_support) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         $ticket = $ticket->load('username:id,name', 'messages');
@@ -69,7 +69,18 @@ class TicketsController extends Controller
     public function update(UpdateTicketsRequest $request, Tickets $ticket): JsonResponse
     {
         if (!Auth::user()->is_support) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        $data = array_intersect_key($request->all(), array_flip(['status', 'title']));
+        if ($request->title === null) {
+            unset($data['title']);
+        }
+        if ($request->status === null) {
+            unset($data['status']);
+        }
+
+        if (empty($data)) {
+            return response()->json(['message' => 'No data to update'], 400);
         }
 
         $ticket->update($request->all());
@@ -86,7 +97,7 @@ class TicketsController extends Controller
     public function destroy(Tickets $ticket): JsonResponse
     {
         if (!Auth::user()->is_support && !($ticket->user_id === Auth::user()->id)) {
-            return response()->json(['error' => 'You are not allowed to delete this ticket'], 403);
+            return response()->json(['message' => 'You are not allowed to delete this ticket'], 403);
         }
 
         $ticket->delete();

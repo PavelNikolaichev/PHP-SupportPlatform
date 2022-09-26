@@ -38,7 +38,7 @@ class Main extends Component {
                 (error) => {
                     this.setState({
                         isLoaded: true,
-                        error
+                        error: error
                     });
                 }
             );
@@ -74,33 +74,19 @@ class Main extends Component {
                         </div>
                     </a>
                 </li>
-            // <tr key={ticket.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-            //     <th scope="row">{ticket.id}</th>
-            //     <th>{ticket.title}</th>
-            //     <th>{ticket.status}</th>
-            //     <th>{ticket.user_id}</th>
-            //     <th>{new Date(ticket.created_at).toLocaleDateString("en-US", {
-            //         year: 'numeric',
-            //         month: 'numeric',
-            //         day: 'numeric',
-            //     })}</th>
-            //     <th>{new Date(ticket.updated_at).toLocaleDateString("en-US", {
-            //         year: 'numeric',
-            //         month: 'numeric',
-            //         day: 'numeric',
-            //     })}</th>
-            //     <th><button onClick={() => this.handleClick(ticket)}>View</button></th>
-            // </tr>
             );
         });
     }
 
     handleClick(ticket)
     {
-        this.currentTicket.current.setState({
-            ticket: ticket,
-            isLoaded: false
-        });
+        let currentTicket = this.currentTicket.current.state.ticket;
+        if (!currentTicket || currentTicket.id !== ticket.id) {
+            this.currentTicket.current.setState({
+                ticket: ticket,
+                isLoaded: false
+            });
+        }
     }
 
     addTicket(ticket)
@@ -126,6 +112,12 @@ class Main extends Component {
         }).then(response => {
             return response.json();
         }).then(data => {
+            if (data['message']) {
+                this.setState({
+                    error: data['message']
+                });
+                return;
+            }
             if(!data['message'])
                 this.addTicket(data);
         });
@@ -159,6 +151,13 @@ class Main extends Component {
                 return response.json();
             })
             .then( data => {
+                if (result['message']) {
+                    this.setState({
+                        error: result['message']
+                    });
+                    return;
+                }
+
                 const newItems = this.state.tickets.filter(function(item) {
                     return item.id !== data.id
                 });
@@ -183,15 +182,28 @@ class Main extends Component {
             return res.json();
         })
             .then((result) => {
-                if (result === "Invalid credentials") {
-                    alert(result);
+                if (result['message']) {
+                    this.setState({
+                        error: result['message']
+                    });
+                    return;
                 }
+                if (result === "Invalid credentials") {
+                    this.setState({
+                        error: result
+                    });
+                    result;
+                }
+
                 if (result['token']['accessToken'] != null) {
                     localStorage.setItem('accessToken', result['token']['plainTextToken']);
                     localStorage.setItem('isSupport', result['is_support']);
                     localStorage.setItem('user_id', result['token']['accessToken']['tokenable_id']);
 
                     this.token = result['token']['plainTextToken'];
+                    this.setState({
+                        error: null
+                    })
                     this.componentDidMount();
                 }
             });
@@ -217,6 +229,9 @@ class Main extends Component {
                     localStorage.setItem('user_id', result['token']['accessToken']['tokenable_id']);
 
                     this.token = result['token']['plainTextToken'];
+                    this.setState({
+                        error: null
+                    })
                     this.componentDidMount();
                 }
             });
@@ -239,19 +254,28 @@ class Main extends Component {
     render()
     {
         const { error, isLoaded, tickets } = this.state;
+        let ticketList = null;
+        let errors = null;
+        if (error) {
+            errors = <div
+                className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+                role="alert">
+                <span className="font-medium">Error: </span> { error }.
+            </div>;
+        }
 
         if (this.token == null) {
             return(
                 <div>
-                    <Login onLogin={this.handleLogin.bind(this)}/>
-                    <Registration onRegister={this.handleRegister.bind(this)}/>
+                    {errors}
+                    <div className="flex h-screen justify-center items-center">
+                        <Login onLogin={this.handleLogin.bind(this)}/>
+                        <Registration onRegister={this.handleRegister.bind(this)}/>
+                    </div>
                 </div>
             )
         }
 
-        if (error) {
-            return <div>Error: {error.message}</div>;
-        }
         if (!isLoaded) {
             return (
                 <div role="status" className="flex h-screen justify-center items-center">
@@ -269,13 +293,25 @@ class Main extends Component {
                 </div>
             );
         }
+        if (tickets.length === 0) {
+            ticketList = (
+                <p className="grid h-[32rem] place-items-center">The ticket list is empty - add a new one.</p>
+            );
+        } else {
+            ticketList = <ul className="overflow-auto h-[32rem]">
+                {this.renderTickets(tickets)}
+            </ul>;
+        }
+
         return (
             <div>
-                <div className="min-w-full border rounded lg:grid lg:grid-cols-3 mt-10">
+                {errors}
+                <div className="flex justify-end mt-5 w-100">
+                    <Logout onLogout={this.handleLogout.bind(this)}/>
+                </div>
+                <div className="min-w-full border rounded lg:grid lg:grid-cols-3 mt-5">
                     <div className="border-r border-gray-300 lg:col-span-1">
-                        <ul className="overflow-auto h-[32rem]">
-                            {this.renderTickets(tickets)}
-                        </ul>
+                        {ticketList}
                         <div className="ml-5 mb-1 mr-2">
                             <AddTicket onAdd={this.handleAddTicket.bind(this)}/>
                         </div>
@@ -291,29 +327,6 @@ class Main extends Component {
                         }
                     })(this)}/>
                 </div>
-                {/*<table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">*/}
-                {/*    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">*/}
-                {/*    <tr>*/}
-                {/*        <th scope="col">Id</th>*/}
-                {/*        <th scope="col">Title</th>*/}
-                {/*        <th scope="col">Status</th>*/}
-                {/*        <th scope="col">Username</th>*/}
-                {/*        <th scope="col">Creation Date</th>*/}
-                {/*        <th scope="col">Modification Date</th>*/}
-                {/*        <th scope="col">Actions</th>*/}
-                {/*    </tr>*/}
-                {/*    </thead>*/}
-                {/*    <tbody>*/}
-                {/*    <ul className="overflow-auto h-[32rem]">*/}
-                {/*        {this.renderTickets(tickets)}*/}
-                {/*    </ul>*/}
-                {/*    </tbody>*/}
-                {/*</table>*/}
-                {/*<div className="grid grid-rows-1">*/}
-                    <div className="flex items-center justify-start space-x-10 mt-10">
-                        <Logout onLogout={this.handleLogout.bind(this)}/>
-                    </div>
-                {/*</div>*/}
             </div>
         );
     }

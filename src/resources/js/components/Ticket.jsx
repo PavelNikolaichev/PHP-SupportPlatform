@@ -14,6 +14,8 @@ export class Ticket extends Component {
             ticket: null
         };
 
+        this.interval = null;
+
         this.deleteCallback = this.props.deleteCallback;
         this.updateCallback = this.props.updateCallback;
     }
@@ -23,34 +25,36 @@ export class Ticket extends Component {
             return;
         }
 
-        fetch('/api/tickets/' + this.state.ticket.id,
-            {
-                method: 'get',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
-                }
-            }).then(
-            response => response.json()
-        ).then(
-            (result) => {
-                this.setState({
-                    isLoaded: true,
-                    ticket: result
+        this.interval = setInterval(() => {
+            fetch('/api/tickets/' + this.state.ticket.id,
+                {
+                    method: 'get',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                    }
+                }).then(
+                response => response.json()
+            ).then(
+                (result) => {
+                    this.setState({
+                        isLoaded: true,
+                        ticket: result
+                    });
+                },
+                (error) => {
+                    this.setState({
+                        isLoaded: true,
+                        error
+                    });
                 });
-            },
-            (error) => {
-                this.setState({
-                    isLoaded: true,
-                    error
-                });
-            }
-        );
+        }, 10000);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.ticket === null || prevState.ticket === null || this.state.ticket.id !== prevState.ticket.id) {
+            clearInterval(this.interval);
             this.componentDidMount();
         }
     }
@@ -71,6 +75,11 @@ export class Ticket extends Component {
         }).then(response => {
             return response.json();
         }).then(data => {
+            if (data.error) {
+                this.setState({error: data.error});
+                return;
+            }
+
             let newTicket = this.state.ticket;
             newTicket.messages.push(data);
             this.setState({ticket: newTicket});
@@ -86,11 +95,15 @@ export class Ticket extends Component {
             return null;
         }
         if (error) {
-            return <div>Error: {error.message}</div>;
+            return <div
+                className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+                role="alert">
+                <span className="font-medium">Error: </span> { error }.
+            </div>
         }
         if (!isLoaded) {
             return (
-                <div role="status" className="flex justify-center items-center h-screen lg:col-span-2">
+                <div role="status" className="flex justify-center items-center h-[32rem] lg:col-span-2">
                     <svg aria-hidden="true"
                          className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
                          viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +119,7 @@ export class Ticket extends Component {
             );
         }
 
-        if( localStorage.getItem('isSupport') === true) {
+        if(localStorage.getItem('isSupport') == true) {
             updateTicket = <UpdateTicket ticket={ticket} onUpdate={this.updateCallback}/>;
         }
 
@@ -123,7 +136,6 @@ export class Ticket extends Component {
         }
 
         return (
-            // <div>
                 <div className="hidden lg:col-span-2 lg:block">
                     <div className="w-full">
                         <div className="relative flex items-center p-3 border-b border-gray-300">
@@ -131,7 +143,7 @@ export class Ticket extends Component {
                             <span className="block ml-2 font-bold text-gray-600">Ticket name: {ticket.title}</span>
                             <span className={`block ml-2 font-bold ${color}`}>Ticket status: {ticket.status}</span>
                         </div>
-                        <div className="relative w-full p-6 overflow-y-auto h-[32rem]">
+                        <div className="relative w-full p-6 overflow-y-auto h-[30rem]">
                             <ul className="space-y-2">
                                 {ticket.messages.map(message => {
                                     if (message.user_id != userId) {
@@ -154,53 +166,14 @@ export class Ticket extends Component {
                                 })}
                             </ul>
                         </div>
-
-                        {/*<div className="flex items-center justify-between w-full p-3 border-t border-gray-300">*/}
-                            {/*<input type="text" placeholder="Message"*/}
-                            {/*       className="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"*/}
-                            {/*       name="message" required/>*/}
-                            <SendMessage ticket={ticket} onSend={(function (obj) {
-                                return function (ticket) {
-                                    obj.handleSend(ticket);
-                                }
-                            })(this)}/>
-                            {/*<button type="submit">*/}
-                            {/*    <svg className="w-5 h-5 text-gray-500 origin-center transform rotate-90"*/}
-                            {/*         xmlns="http://www.w3.org/2000/svg"*/}
-                            {/*         viewBox="0 0 20 20" fill="currentColor">*/}
-                            {/*        <path*/}
-                            {/*            d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>*/}
-                            {/*    </svg>*/}
-                            {/*</button>*/}
-                        {/*</div>*/}
+                        <SendMessage ticket={ticket} onSend={(function (obj) {
+                            return function (ticket) {
+                                obj.handleSend(ticket);
+                            }
+                        })(this)}/>
                     </div>
                     {updateTicket}
                 </div>
-            // </div>
-            // <div className="card" style={this.style}>
-            //     <div className="card-header">
-            //         <h5 className="card-title">{ticket.title}</h5>
-            //     </div>
-            //     <div className="card-body">
-            //         <ul>
-            //             {ticket.messages.map(message => {
-            //                 return (
-            //                     <li key={message.id}>
-            //                         <p>{message.text}</p>
-            //                         <p>{message.created_at}</p>
-            //                     </li>
-            //                 );
-            //             })}
-            //         </ul>
-            //
-            //         <SendMessage ticket={ticket} onSend={(function (obj) {
-            //             return function (ticket) {
-            //                 obj.handleSend(ticket);
-            //             }
-            //         })(this)}/>
-            //         <button onClick={this.deleteCallback}>Delete</button>
-            //     </div>
-            // </div>
         );
     }
 }
